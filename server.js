@@ -1,24 +1,14 @@
+const http = require('http');
+const io = require('socket.io');
 
-const server = require('http').createServer();
-const io = require('socket.io')(server, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST']
-    }
-  });
+const apiServer = require('./api');
+const httpServer = http.createServer(apiServer);
+const socketServer = io(httpServer);
+
+const sockets = require('./sockets');
+
 const PORT = 3000;
+httpServer.listen(PORT);
+console.log(`Listening on port ${PORT}...`);
 
-server.listen(PORT, ()=>{
-    console.log(`listening on port ${PORT}`)
-});
-
-let readyPlayerCount = 0;
-
-io.on('connection', (socket) => {
-    console.log('player connected',socket.id);
-
-    socket.on('ready', ()=>{
-        console.log('Player ready', socket.id);
-        readyPlayerCount++
-    })
-})
+sockets.listen(socketServer);
